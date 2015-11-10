@@ -1,10 +1,13 @@
 package org.ruan.connection;
 
+import android.util.Log;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
@@ -19,6 +22,7 @@ public abstract class TcpServerConnection extends MavLinkConnection{
 
     private String serverIP;
     private int serverPort;
+    private boolean clientConnected = false;
 
     @Override
     public final void openConnection() throws IOException {
@@ -53,12 +57,18 @@ public abstract class TcpServerConnection extends MavLinkConnection{
     public final void closeConnection() throws IOException {
         if (socket != null)
             socket.close();
+        if( mServerSocket != null){
+            mServerSocket.close();
+            mServerSocket=null;
+        }
     }
 
+    private ServerSocket mServerSocket=null;
+
     private void getTCPStream() throws IOException {
-        InetAddress serverAddr = InetAddress.getByName(serverIP);
-        socket = new Socket();
-        socket.connect(new InetSocketAddress(serverAddr, serverPort), CONNECTION_TIMEOUT);
+        if( mServerSocket==null || mServerSocket.isClosed())
+            mServerSocket = new ServerSocket(serverPort,1);
+        socket = mServerSocket.accept();
         mavOut = new BufferedOutputStream((socket.getOutputStream()));
         mavIn = new BufferedInputStream(socket.getInputStream());
     }

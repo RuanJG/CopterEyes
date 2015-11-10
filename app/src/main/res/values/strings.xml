@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">CopterEyes</string>
+    <string name="title_activity_bluetooth_devices">BluetoothDevicesActivity</string>
 </resources>
